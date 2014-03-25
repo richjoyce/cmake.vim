@@ -37,23 +37,21 @@ func! cmake#flags#inject_to_syntastic(target)
     return
   endif
 
+  let l:syReg = g:SyntasticRegistry.Instance()
+
   let l:flags = cmake#targets#flags(a:target)
   if empty(l:flags)
     return
   endif
 
   for l:language in keys(l:flags)
-    "let l:checker_val = "g:syntastic_" . l:language . "_checkers"
-    "if !exists(l:checker_val)
-      "continue
-    "endif
-
-    "let l:checkers = eval(l:checker_val)
-    "for l:checker in l:checkers
-      "let l:args = l:flags[l:language]
-      "let l:sy_flag = "g:syntastic_" . l:language . "_" . l:checker . "_args"
-      "exec("let " . l:sy_flag . "='" . join(l:args, " ") . "'")
-    "endfor
+    let syCheckers = syReg.getActiveCheckers(l:language)
+    for checker in syCheckers
+      let l:args = l:flags[l:language]
+      let l:cmd = "let g:syntastic_" . l:language . "_" . checker.getName() .
+          \  "_post_args = \"" . join(l:args, ' ') . "\""
+      exec(l:cmd)
+    endfor
   endfor
 endfunc!
 
